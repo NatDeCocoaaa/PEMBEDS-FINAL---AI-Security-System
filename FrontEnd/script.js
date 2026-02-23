@@ -1,7 +1,28 @@
 const CALLAI_PATH = '/fProject_PEMBEDS%202/BackEnd/CallAI.php'; 
 const SENSOR_POLL_PATH = '/fProject_PEMBEDS%202/BackEnd/sensor_fetch.php?device_id=1';
 const SENSOR_HISTORY_PATH = '/fProject_PEMBEDS%202/BackEnd/sensor_history.php?device_id=1&limit=50';
+const AI_LOGS_PATH = '/fProject_PEMBEDS%202/BackEnd/fetch_ai_logs.php?limit=50';
 
+async function fetchAILogs() {
+    try {
+        const res = await fetch(AI_LOGS_PATH);
+        if (!res.ok) {
+            console.warn('fetchAILogs failed', res.status);
+            return;
+        }
+        const j = await res.json();
+        if (!j.ok || !Array.isArray(j.data)) return;
+        const tbody = document.getElementById('ai-log-body');
+        tbody.innerHTML = '';
+
+        for (let row of j.data) {
+            const time = (row.created_at) ? new Date(row.created_at).toLocaleString() : '';
+            addAILogEntry(time, row.prompt, row.response);
+        }
+    } catch (err) {
+        console.error('fetchAILogs error', err);
+    }
+}
 let sensorChart = null;
 
 async function fetchSensorStatus() {
@@ -43,7 +64,6 @@ async function fetchSensorHistoryAndUpdateChart() {
         const distanceData = rows.map(r => (r.distance === null ? null : parseFloat(r.distance)));
         const soundData = rows.map(r => (r.sound_db === null ? null : parseFloat(r.sound_db)));
 
-        // If chart not created yet — create it
         if (!sensorChart) {
             const ctx = document.getElementById('sensorChart').getContext('2d');
             sensorChart = new Chart(ctx, {
@@ -214,12 +234,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // initial mock entries (remove when ready)
     addLogEntry("23:15:04", "Intrusion Denied", "Keypad Fail");
     addAILogEntry("23:16:10", "Analyze last 10 rows for anomalies", "No anomalies (sample)");
 
     fetchSensorStatus();
     fetchSensorHistoryAndUpdateChart();
+    fetchAILogs();
     setInterval(fetchSensorStatus, 1000);       
     setInterval(fetchSensorHistoryAndUpdateChart, 2000);
+    setInterval(fetchAILogs, 5000);
+
 });
