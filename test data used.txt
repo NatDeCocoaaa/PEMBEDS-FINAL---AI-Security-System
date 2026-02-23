@@ -1,0 +1,24 @@
+INSERT INTO sensor_logs 
+(device_id, ultrasonic_distance_cm, sound_db, pir_status, lock_state, created_at) 
+VALUES
+-- normal idle state
+(1, 180, 32, 'STABLE', 'UNLOCKED', NOW() - INTERVAL 10 MINUTE),
+(1, 175, 30, 'STABLE', 'UNLOCKED', NOW() - INTERVAL 9 MINUTE),
+(1, 182, 31, 'STABLE', 'UNLOCKED', NOW() - INTERVAL 8 MINUTE),
+
+-- someone approaching
+(1, 120, 40, 'STABLE', 'UNLOCKED', NOW() - INTERVAL 7 MINUTE),
+(1, 80, 55, 'MOTION', 'UNLOCKED', NOW() - INTERVAL 6 MINUTE),
+
+-- intruder detected
+(1, 35, 75, 'MOTION', 'UNLOCKED', NOW() - INTERVAL 5 MINUTE),
+(1, 20, 90, 'MOTION', 'HARD-LOCK', NOW() - INTERVAL 4 MINUTE),
+
+-- lock engaged
+(1, 18, 88, 'MOTION', 'HARD-LOCK', NOW() - INTERVAL 3 MINUTE),
+(1, 22, 60, 'STABLE', 'HARD-LOCK', NOW() - INTERVAL 2 MINUTE),
+
+-- situation clears
+(1, 150, 35, 'STABLE', 'UNLOCKED', NOW() - INTERVAL 1 MINUTE);
+
+yes i had an ai generate that sample test
