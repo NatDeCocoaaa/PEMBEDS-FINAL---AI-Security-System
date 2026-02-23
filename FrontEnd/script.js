@@ -234,9 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    addLogEntry("23:15:04", "Intrusion Denied", "Keypad Fail");
-    addAILogEntry("23:16:10", "Analyze last 10 rows for anomalies", "No anomalies (sample)");
-
     fetchSensorStatus();
     fetchSensorHistoryAndUpdateChart();
     fetchAILogs();
