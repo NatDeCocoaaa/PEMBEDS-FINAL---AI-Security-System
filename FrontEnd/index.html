@@ -48,6 +48,14 @@
                         <tbody id="log-body"></tbody>
                     </table>
                 </div>
+
+                <!-- CHART: sensor history -->
+                <div class="mt-6">
+                    <div class="bg-gray-800 px-4 py-2 text-xs font-bold uppercase text-cyan-400">Sensor History (last 50)</div>
+                    <div class="p-4 bg-gray-900">
+                        <canvas id="sensorChart" height="200"></canvas>
+                    </div>
+                </div>
             </div>
 
             <div id="tab-content-ai" class="p-4 hidden">
@@ -96,6 +104,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script src="script.js"></script>
 </body>

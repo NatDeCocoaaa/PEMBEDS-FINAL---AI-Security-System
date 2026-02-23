@@ -1,6 +1,8 @@
 const CALLAI_PATH = '/fProject_PEMBEDS%202/BackEnd/CallAI.php'; 
-
 const SENSOR_POLL_PATH = '/fProject_PEMBEDS%202/BackEnd/sensor_fetch.php?device_id=1';
+const SENSOR_HISTORY_PATH = '/fProject_PEMBEDS%202/BackEnd/sensor_history.php?device_id=1&limit=50';
+
+let sensorChart = null;
 
 async function fetchSensorStatus() {
     try {
@@ -22,8 +24,91 @@ async function fetchSensorStatus() {
     }
 }
 
-setInterval(fetchSensorStatus, 1000);
-fetchSensorStatus();
+async function fetchSensorHistoryAndUpdateChart() {
+    try {
+        const res = await fetch(SENSOR_HISTORY_PATH);
+        if (!res.ok) {
+            console.warn('history fetch failed', res.status);
+            return;
+        }
+        const j = await res.json();
+        if (!j.ok || !j.data) return;
+
+        const rows = j.data; // chronological oldest > newest
+        const labels = rows.map(r => {
+            const d = new Date(r.created_at);
+            return d.toLocaleTimeString();
+        });
+
+        const distanceData = rows.map(r => (r.distance === null ? null : parseFloat(r.distance)));
+        const soundData = rows.map(r => (r.sound_db === null ? null : parseFloat(r.sound_db)));
+
+        // If chart not created yet — create it
+        if (!sensorChart) {
+            const ctx = document.getElementById('sensorChart').getContext('2d');
+            sensorChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Distance (cm)',
+                            data: distanceData,
+                            yAxisID: 'y1',
+                            borderWidth: 2,
+                            tension: 0.25,
+                            borderColor: 'rgba(56,189,248,1)',
+                            backgroundColor: 'rgba(56,189,248,0.1)',
+                            spanGaps: true
+                        },
+                        {
+                            label: 'Sound (raw)',
+                            data: soundData,
+                            yAxisID: 'y2',
+                            borderWidth: 2,
+                            tension: 0.25,
+                            borderColor: 'rgba(99,102,241,1)',
+                            backgroundColor: 'rgba(99,102,241,0.08)',
+                            spanGaps: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    stacked: false,
+                    scales: {
+                        x: {
+                            display: true,
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            title: { display: true, text: 'Distance (cm)' }
+                        },
+                        y2: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'Sound (raw)' }
+                        }
+                    }
+                }
+            });
+        } else {
+            sensorChart.data.labels = labels;
+            sensorChart.data.datasets[0].data = distanceData;
+            sensorChart.data.datasets[1].data = soundData;
+            sensorChart.update();
+        }
+    } catch (err) {
+        console.error('fetchSensorHistoryAndUpdateChart err', err);
+    }
+}
 
 function updateClock() {
     const now = new Date();
@@ -129,7 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // initial mock entries remove when ready
+    // initial mock entries (remove when ready)
     addLogEntry("23:15:04", "Intrusion Denied", "Keypad Fail");
     addAILogEntry("23:16:10", "Analyze last 10 rows for anomalies", "No anomalies (sample)");
+
+    fetchSensorStatus();
+    fetchSensorHistoryAndUpdateChart();
+    setInterval(fetchSensorStatus, 1000);       
+    setInterval(fetchSensorHistoryAndUpdateChart, 2000);
 });
