@@ -5,14 +5,17 @@ const char ssid[] = “ComLab506”;
 const char pass[] = "#Ramswifi"; 
 const char server[] = "192.168.52.135"; 
 const int port = 80; 
-
-const int trigPin  = 4;   
+ 
+const int trigPin  = 4;
 const int echoPin  = 2;
 const int soundPin = A0;
+ 
 const int greenLED = 13;
 const int redLED   = 6;
 const int buzzer   = 5;
 const int servoPin = 12;
+ 
+
 const int distanceThreshold = 15;
 const int soundThreshold    = 100;
 const unsigned long SEND_INTERVAL_MS = 2000; 

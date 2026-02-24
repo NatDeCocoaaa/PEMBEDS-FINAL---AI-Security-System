@@ -155,6 +155,25 @@ function addAILogEntry(time, prompt, response) {
                      <td class="p-2 align-top font-mono text-xs" style="max-width:360px;word-wrap:break-word;">${escapeHtml(response)}</td>`;
 }
 
+async function remoteUnlock() {
+    const pin = document.getElementById('web-pin').value;
+    if(!pin) return;
+
+    try {
+        const res = await fetch('/fProject_PEMBEDS%202/BackEnd/send_command.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ pin })
+        });
+        const data = await res.json();
+        
+        alert(data.message);
+        document.getElementById('web-pin').value = '';
+    } catch (err) {
+        alert("Connection Error");
+    }
+}
+
 function escapeHtml(unsafe) {
     if (!unsafe && unsafe !== 0) return '';
     return String(unsafe)
