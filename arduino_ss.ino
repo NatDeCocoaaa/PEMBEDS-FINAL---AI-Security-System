@@ -5,20 +5,21 @@ const char ssid[] = “ComLab506”;
 const char pass[] = "#Ramswifi"; 
 const char server[] = "192.168.52.135"; 
 const int port = 80; 
- 
-const int trigPin  = 4;
+
+const int trigPin  = 4;   
 const int echoPin  = 2;
 const int soundPin = A0;
- 
 const int greenLED = 13;
 const int redLED   = 6;
 const int buzzer   = 5;
 const int servoPin = 12;
- 
 
 const int distanceThreshold = 15;
 const int soundThreshold    = 100;
 const unsigned long SEND_INTERVAL_MS = 2000; 
+
+unsigned long lastCommandCheck = 0;
+const unsigned long CHECK_INTERVAL = 3000;
 
 Servo myServo;
 WiFiClient client;
@@ -82,7 +83,30 @@ void loop() {
     
     sendToServer(distance, soundVal, pirStatus, lockStatusStr);
   }
+  void checkWebCommands() {
+  if (millis() - lastCommandCheck < CHECK_INTERVAL) return;
+  lastCommandCheck = millis();
+
+  if (client.connect(server, port)) {
+    client.print("GET /fProject_PEMBEDS%202/BackEnd/check_command.php?device_id=1 HTTP/1.1\r\n");
+    client.print(String("Host: ") + server + "\r\n");
+    client.print("Connection: close\r\n\r\n");
+
+    while (client.connected() || client.available()) {
+      if (client.available()) {
+        String line = client.readStringUntil('\n');
+        if (line.indexOf("REMOTE_ACTION:UNLOCK") != -1) {
+          Serial.println("WEB OVERRIDE: UNLOCKING");
+          unlockSystem();
+          }
+        }
+      }
+      client.stop();
+    }
+  }
 }
+
+
 
 int getDistance() {
   digitalWrite(trigPin, LOW);
