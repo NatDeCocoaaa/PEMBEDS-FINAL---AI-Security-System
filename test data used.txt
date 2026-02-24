@@ -21,4 +21,19 @@ VALUES
 -- situation clears
 (1, 150, 35, 'STABLE', 'UNLOCKED', NOW() - INTERVAL 1 MINUTE);
 
+
+INSERT INTO sensor_logs 
+(device_id, ultrasonic_distance_cm, sound_db, pir_status, lock_state, created_at)
+VALUES
+(1, 180, 30, 'STABLE', 'UNLOCKED', NOW() - INTERVAL 90 SECOND),
+(1, 150, 35, 'STABLE', 'UNLOCKED', NOW() - INTERVAL 80 SECOND),
+(1, 120, 40, 'STABLE', 'UNLOCKED', NOW() - INTERVAL 70 SECOND),
+(1, 85, 55, 'MOTION', 'UNLOCKED', NOW() - INTERVAL 60 SECOND),
+(1, 60, 70, 'MOTION', 'UNLOCKED', NOW() - INTERVAL 50 SECOND),
+(1, 35, 82, 'MOTION', 'HARD-LOCK', NOW() - INTERVAL 40 SECOND),
+(1, 30, 88, 'MOTION', 'HARD-LOCK', NOW() - INTERVAL 30 SECOND),
+(1, 50, 60, 'STABLE', 'HARD-LOCK', NOW() - INTERVAL 20 SECOND),
+(1, 120, 40, 'STABLE', 'UNLOCKED', NOW() - INTERVAL 10 SECOND),
+(1, 200, 28, 'STABLE', 'UNLOCKED', NOW());
+
 yes i had an ai generate that sample test
